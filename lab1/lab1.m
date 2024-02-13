@@ -1,6 +1,8 @@
 % lab 1 CImg assignment
 % Authors: César Borja and Nerea Gallego
 
+close all;
+
 % 2) Importing your image
 
 % 2.1) Reading the image into Matlab
@@ -29,7 +31,6 @@ image = (image - 1023) / (15600 - 1023);
 
 % Clip values to [0, 1]
 image = max(min(image, 1), 0);
-
 
 % 3) Demosaicing (bggr)
 
@@ -94,16 +95,23 @@ function [outputImage] = demosaicingBilinearInterpolation(inputImage)
     % Bilinear interpolation
 
     % Blue channel
-    outputImage(1:2:end, 2:2:end-2, 3) = (outputImage(1:2:end, 1:2:end-2, 3) + outputImage(1:2:end, 3:2:end, 3))/2 ; % Horizontal
-    if mod(width,2) == 0
-        outputImage(1:2:end, end, 3) = outputImage(1:2:end, end-1,3);
-    end
-    outputImage(2:2:end-1, 1:2:end, 3) = (outputImage(1:2:end-2, 1:2:end, 3) + outputImage(3:2:end, 1:2:end, 3)) / 2; % Vertical
+    outputImage(2:2:end-1, 2:2:end-1,3) = (outputImage(1:2:end-2,1:2:end-2,3) + outputImage(1:2:end-2,3:2:end,3) + outputImage(3:2:end,1:2:end-2,3) + outputImage(3:2:end, 3:2:end,3))/4;
+    outputImage(1:2:end, 2:2:end-1,3) = (outputImage(1:2:end,1:2:end-2,3) + outputImage(1:2:end,3:2:end,3))/2;
+    outputImage(2:2:end-1, 1:2:end,3) = (outputImage(1:2:end-2,1:2:end,3) + outputImage(3:2:end, 1:2:end,3))/2;
     if mod(height,2) == 0
-        outputImage(end, 1:2:end, 3) = outputImage(end-1, 1:2:end, 3);
+        outputImage(end,1:2:end,3) = outputImage(end-1,1:2:end,3);
+        outputImage(end,2:2:end-1,3) = (outputImage(end-1,1:2:end-2,3) + outputImage(end-1,3:2:end,3))/2;
     end
-    outputImage(2:2:end-1, 2:2:end-1, 3) = (outputImage(1:2:end-2, 1:2:end-2, 3) + outputImage(1:2:end-2, 3:2:end,3) + outputImage(3:2:end, 1:2:end-2, 3)+ outputImage(3:2:end, 3:2:end, 3))/4; % Diagonal
-    
+    if mod(width,2) == 0
+        outputImage(1:2:end,end,3) = outputImage(1:2:end,end-1,3);
+        outputImage(2:2:end-1, end,3) = (outputImage(1:2:end-2,end-1,3) + outputImage(3:2:end,end-1,3))/2;
+    end
+    if mod(height,2) == 0 && mod(width,2) == 0
+        outputImage(end,end,3) = outputImage(end-1,end-1,3);
+    end
+
+    figure; imshow(outputImage(:,:,3));
+
     % Green channel
     outputImage(2:2:end, 2:2:end, 2) = outputImage(2:2:end, 1:2:end-1, 2);
     outputImage(1:2:end, 1:2:end, 2) = outputImage(1:2:end, 2:2:end, 2);
