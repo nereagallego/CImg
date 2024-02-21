@@ -202,16 +202,30 @@ end
 function [output] = whiteBalancedManualBalancing(inputImage)
     output = inputImage;
 
-    % Choose manually the gray point
-    % Display the image
-    imshow(inputImage);
+    height = size(inputImage, 1);
+    width = size(inputImage, 2);
 
     % Get a pixel coordinate by mouse click
-    [x, y] = ginput(1);
+    % [x, y] = ginput(1);
+
+    % Search for a gray point in the image
+    % Iterate over the pixels
+    grayPoint = [0, 0];
+    for i = 1:height
+        for j = 1:width
+            % If R, G, and B values are equal
+            if inputImage(i, j, 1) == inputImage(i, j, 2) && inputImage(i, j, 2) == inputImage(i, j, 3)
+                % Store the coordinates
+                grayPoint = [i, j];
+                % Return the result
+                return;
+            end
+        end
+    end
 
     % Round the coordinates as pixel indices must be integers
-    x = round(x);
-    y = round(y);
+    x = round(grayPoint(1));
+    y = round(grayPoint(2));
 
     % Get the RGB values of the selected pixel
     pixelValue = inputImage(y, x, :);
