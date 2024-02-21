@@ -111,8 +111,16 @@ function [outputImage] = demosaicingBilinearInterpolation(inputImage)
     end
 
     % Green channel
-    outputImage(2:2:end, 2:2:end, 2) = outputImage(2:2:end, 1:2:end-1, 2);
-    outputImage(1:2:end, 1:2:end, 2) = outputImage(1:2:end, 2:2:end, 2);
+    outputImage(2:2:end-1, 2:2:end-1,2) = (outputImage(1:2:end-2,2:2:end-2,2) + outputImage(2:2:end-2, 1:2:end-2, 2) + outputImage(2:2:end-2, 3:2:end,2) + outputImage(3:2:end, 2:2:end-2, 2) )/4;
+    outputImage(3:2:end-1, 3:2:end-1,2) = (outputImage(2:2:end-2,3:2:end-1,2) + outputImage(3:2:end-1, 2:2:end-2, 2) + outputImage(3:2:end-1, 4:2:end,2) + outputImage(4:2:end, 3:2:end-1, 2) )/4;
+    outputImage(1, 1:2:end, 2) = (outputImage(1, 2:2:end, 2) + outputImage(2, 1:2:end, 2))/2;
+    outputImage(3:2:end-1, 1, 2) = (outputImage(2:2:end-2, 1, 2) + outputImage(4:2:end, 1, 2) + outputImage(3:2:end-1, 2, 2))/3;
+    if mod(width,2) == 0
+        outputImage(2:2:end-1, end, 2) = (outputImage(1:2:end-2, end, 2) + outputImage(3:2:end, end, 2) + outputImage(2:2:end-1, end-1, 2))/3;
+    end
+    if mod(height,2) == 0
+        outputImage(end, 2:2:end-1, 2) = (outputImage(end, 1:2:end-2, 2) + outputImage(end, 3:2:end, 2) + outputImage(end-1, 2:2:end-1, 2))/3;
+    end
     
     % Red channel
     outputImage(3:2:end-1,3:2:end-1,1) = (outputImage(2:2:end-2,2:2:end-2,1) + outputImage(2:2:end-2,4:2:end,1) + outputImage(4:2:end, 2:2:end-2,1) + outputImage(4:2:end, 4:2:end,1))/4;
@@ -134,7 +142,7 @@ function [outputImage] = demosaicingBilinearInterpolation(inputImage)
         outputImage(end,end,1) = outputImage(end-1,end-1,1);
     end
 
-    figure; imshow(outputImage(:,:,1));
+    figure; imshow(outputImage(:,:,2));
 end
 
 
