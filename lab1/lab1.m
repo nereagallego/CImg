@@ -58,16 +58,16 @@ figure(config_fig); imshow(whiteBalanced);
 % 5) Denoising
 
 % 5.1) Mean filtering
-% meanFiltered = mean_filtering(whiteBalanced);
+filtered = mean_filtering(whiteBalanced);
 
 % 5.2) Median filtering
-% medianFiltered = median_filtering(whiteBalanced);
+% filtered = median_filtering(whiteBalanced);
 
 % 5.3) Gaussian filtering
-gaussianFiltered = gaussian_filtering(whiteBalanced, 5, 1.0);
+% filtered = gaussian_filtering(whiteBalanced, 5, 1.0);
 
 config_fig = config_fig + 1;
-figure(config_fig); imshow(gaussianFiltered);
+figure(config_fig); imshow(filtered);
 
 % 6) Color balance
 colorBalanced = colorBalance(gaussianFiltered);
@@ -279,26 +279,19 @@ function [output] = whiteBalancedManualBalancing(inputImage)
 end
 
 function [output] = mean_filtering(input)
-    % Get the size of the input image
-    [height, width] = size(input);
+    % Define the mean filter
+    mean_filter = ones(3, 3) / 9;
+    
+    % Get the number of color channels in the input image
+    [~, ~, num_channels] = size(input);
     
     % Initialize the output image
-    output = input;
+    output = zeros(size(input));
     
-    % Apply the mean filter
-    for i = 1:height
-        for j = 1:width
-            % Index of the neighborhood of the pixel inside the image
-            i1 = max(i-1, 1);
-            i2 = min(i+1, height);
-            j1 = max(j-1, 1);
-            j2 = min(j+1, width);
-
-            % Compute the mean of the neighborhood
-            output(i, j) = mean(mean(input(i1:i2, j1:j2)));
-        end
+    % Apply the mean filter to each color channel separately
+    for i = 1:num_channels
+        output(:,:,i) = conv2(input(:,:,i), mean_filter, 'same');
     end
-
 end
 
 function [output] = median_filtering(input)
