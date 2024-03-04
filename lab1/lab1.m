@@ -3,6 +3,8 @@
 
 close all;
 
+config_fig = 0;
+
 % 2) Importing your image
 
 % 2.1) Reading the image into Matlab
@@ -31,7 +33,8 @@ image = (image - 1023) / (15600 - 1023);
 
 % Clip values to [0, 1]
 image = max(min(image, 1), 0);
-figure; imshow(image);
+config_fig = config_fig + 1;
+figure(config_fig); imshow(image);
 
 % 3) Demosaicing (rggb)
 
@@ -41,20 +44,63 @@ demosaicNN = demosaicNearestNeighbor(image);
 
 % 3.2) Demosaicing with bilinear interpolation
 demosaicBI = demosaicingBilinearInterpolation(image);
-figure(1); imshow(demosaicBI);
+config_fig = config_fig + 1;
+figure(config_fig); imshow(demosaicBI);
 
 % 4) White balancing
 % 4.1) White balancing using the white world assumption
 % whiteBalanced = whiteBalancingWhiteWorld(demosaicBI);
-% whiteBalanced = whiteBalancingGrayWorld(demosaicBI);
-whiteBalanced = whiteBalancedManualBalancing(demosaicBI);
-figure(2); imshow(whiteBalanced);
+whiteBalanced = whiteBalancingGrayWorld(demosaicBI);
+% whiteBalanced = whiteBalancedManualBalancing(demosaicBI);
+config_fig = config_fig + 1;
+figure(config_fig); imshow(whiteBalanced);
 
 % 5) Denoising
+
 % 5.1) Mean filtering
 % meanFiltered = mean_filtering(whiteBalanced);
-% figure; imshow(meanFiltered);
 
+% 5.2) Median filtering
+% medianFiltered = median_filtering(whiteBalanced);
+
+% 5.3) Gaussian filtering
+gaussianFiltered = gaussian_filtering(whiteBalanced, 5, 1.0);
+
+config_fig = config_fig + 1;
+figure(config_fig); imshow(gaussianFiltered);
+
+% 6) Color balance
+colorBalanced = colorBalance(gaussianFiltered);
+config_fig = config_fig + 1;
+figure(config_fig); imshow(colorBalanced);
+
+% 7) Tone reproduction
+
+% Brighten the image
+scale = 1.3;
+colorBalanced = colorBalanced * scale;
+% Ensure that no value exceeds 1
+colorBalanced = min(colorBalanced, 1);
+
+% Adjust exposure
+alpha = 1.3;
+colorBalanced = colorBalanced * 2^alpha;
+
+% Gamma correction
+gammaCorrected = gammaCorrection(colorBalanced, 0.8);
+config_fig = config_fig + 1;
+figure(config_fig); imshow(gammaCorrected);
+
+% 8) Compression
+
+% Save the image in PNG format
+imwrite(gammaCorrected, 'imgs/finalImage.png');
+
+% JPEG format with quality setting 95
+imwrite(gammaCorrected, 'imgs/finalImage.jpg', 'Quality', 95);
+
+% By changing the JPEG quality settings, determine the lowest setting for which the compressed image is indistinguishable from the original
+imwrite(gammaCorrected, 'imgs/finalImage_ratio.jpg', 'Quality', 90);
 
 function [outputImage] = demosaicNearestNeighbor(inputImage)
     % Get the size of the input image
@@ -260,22 +306,66 @@ function [output] = median_filtering(input)
     [height, width] = size(input);
     
     % Initialize the output image
-    output = zeros(height, width);
+    output = input;
     
     % Apply the median filter
-    for i = 2:height-1
-        for j = 2:width-1
-            output(i, j) = median(median(input(i-1:i+1, j-1:j+1)));
+    for i = 1:height
+        for j = 1:width
+            % Index of the neighborhood of the pixel inside the image
+            i1 = max(i-1, 1);
+            i2 = min(i+1, height);
+            j1 = max(j-1, 1);
+            j2 = min(j+1, width);
+
+            % Compute the mean of the neighborhood
+            output(i, j) = median(median(input(i1:i2, j1:j2)));
         end
     end
 end
 
-function [output] = gaussian_filtering(input)
+function kernel = gaussian_kernel(size, sigma)
+    % Generate a 2D Gaussian kernel
+    [x, y] = meshgrid(1:size, 1:size);
+    x = x - floor(size / 2) - 1;
+    y = y - floor(size / 2) - 1;
+    kernel = (1/(2*pi*sigma^2)) * exp(-((x.^2 + y.^2)/(2*sigma^2)));
+    kernel = kernel / sum(kernel(:));
+end
+
+function [output] = gaussian_filtering(input, kernel_size, sigma)
     % Get the size of the input image
-    [height, width] = size(input);
+    [height, width, num_channels] = size(input);
     
     % Initialize the output image
-    output = zeros(height, width);
+    output = zeros(height, width, num_channels);
 
+    % Apply Gaussian filter to an RGB image
+    % Generate 2D Gaussian kernel
+    kernel = gaussian_kernel(kernel_size, sigma);
     
+    for i = 1:num_channels  % Loop over RGB channels
+        output(:,:,i) = conv2(input(:,:,i), kernel, 'same');
+    end
+    
+    % output = uint8(output);
+end
+
+function [output] = colorBalance(input)
+    % Convert to HSV
+    hsv = rgb2hsv(input);
+
+    % Boost the saturation
+    hsv(:,:,2) = hsv(:,:,2) * 1.2;
+
+    % Convert back to RGB
+    output = hsv2rgb(hsv);
+end
+
+function [output] = gammaCorrection(input, gamma)
+    % Apply gamma correction
+    idx_leq = input <= 0.0031308;
+    idx_gt = input > 0.0031308;
+    output = input;
+    output(idx_leq) = 12.92 * input(idx_leq);
+    output(idx_gt) = 1.055 * input(idx_gt).^(1/gamma) - 0.055;
 end
