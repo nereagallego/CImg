@@ -31,23 +31,29 @@ image = (image - 1023) / (15600 - 1023);
 
 % Clip values to [0, 1]
 image = max(min(image, 1), 0);
+figure; imshow(image);
 
-% 3) Demosaicing (bggr)
+% 3) Demosaicing (rggb)
 
-% BGGR pattern
+% RGGB pattern
 % 3.1) Demosaicing with nearest neighbor
 demosaicNN = demosaicNearestNeighbor(image);
 
 % 3.2) Demosaicing with bilinear interpolation
 demosaicBI = demosaicingBilinearInterpolation(image);
-% figure; imshow(demosaicBI);
+figure(1); imshow(demosaicBI);
 
 % 4) White balancing
 % 4.1) White balancing using the white world assumption
 % whiteBalanced = whiteBalancingWhiteWorld(demosaicBI);
 % whiteBalanced = whiteBalancingGrayWorld(demosaicBI);
 whiteBalanced = whiteBalancedManualBalancing(demosaicBI);
-figure; imshow(whiteBalanced);
+figure(2); imshow(whiteBalanced);
+
+% 5) Denoising
+% 5.1) Mean filtering
+% meanFiltered = mean_filtering(whiteBalanced);
+% figure; imshow(meanFiltered);
 
 
 function [outputImage] = demosaicNearestNeighbor(inputImage)
@@ -57,31 +63,31 @@ function [outputImage] = demosaicNearestNeighbor(inputImage)
     % Initialize the output image
     outputImage = zeros(height, width, 3);
     
-    % Blue channel
-    outputImage(1:2:end, 1:2:end, 3) = inputImage(1:2:end, 1:2:end);
+    % Red channel
+    outputImage(1:2:end, 1:2:end, 1) = inputImage(1:2:end, 1:2:end);
     
     % Green channel
     outputImage(1:2:end, 2:2:end, 2) = inputImage(1:2:end, 2:2:end);
     outputImage(2:2:end, 1:2:end, 2) = inputImage(2:2:end, 1:2:end);
     
-    % Red channel
-    outputImage(2:2:end, 2:2:end, 1) = inputImage(2:2:end, 2:2:end);
+    % Blue channel
+    outputImage(2:2:end, 2:2:end, 3) = inputImage(2:2:end, 2:2:end);
     
     % Nearest neighbor interpolation
 
-    % Blue channel
-    outputImage(1:2:end, 2:2:end, 3) = outputImage(1:2:end, 1:2:end-1, 3);
-    outputImage(2:2:end, 1:2:end, 3) = outputImage(1:2:end-1, 1:2:end, 3);
-    outputImage(2:2:end, 2:2:end, 3) = outputImage(1:2:end-1, 1:2:end-1, 3);
+    % Red channel
+    outputImage(1:2:end, 2:2:end, 1) = outputImage(1:2:end, 1:2:end-1, 1);
+    outputImage(2:2:end, 1:2:end, 1) = outputImage(1:2:end-1, 1:2:end, 1);
+    outputImage(2:2:end, 2:2:end, 1) = outputImage(1:2:end-1, 1:2:end-1, 1);
     
     % Green channel
     outputImage(2:2:end, 2:2:end, 2) = outputImage(2:2:end, 1:2:end-1, 2);
     outputImage(1:2:end, 1:2:end, 2) = outputImage(1:2:end, 2:2:end, 2);
     
-    % Red channel
-    outputImage(2:2:end, 1:2:end, 1) = outputImage(2:2:end, 2:2:end, 1);
-    outputImage(1:2:end, 2:2:end, 1) = outputImage(2:2:end, 2:2:end, 1);
-    outputImage(1:2:end, 1:2:end, 1) = outputImage(2:2:end, 2:2:end, 1);
+    % Blue channel
+    outputImage(2:2:end, 1:2:end, 3) = outputImage(2:2:end, 2:2:end, 3);
+    outputImage(1:2:end, 2:2:end, 3) = outputImage(2:2:end, 2:2:end, 3);
+    outputImage(1:2:end, 1:2:end, 3) = outputImage(2:2:end, 2:2:end, 3);
 end
 
 function [outputImage] = demosaicingBilinearInterpolation(inputImage)
@@ -91,32 +97,32 @@ function [outputImage] = demosaicingBilinearInterpolation(inputImage)
     % Initialize the output image
     outputImage = zeros(height, width, 3);
     
-    % Blue channel
-    outputImage(1:2:end, 1:2:end, 3) = inputImage(1:2:end, 1:2:end);
+    % Red channel
+    outputImage(1:2:end, 1:2:end, 1) = inputImage(1:2:end, 1:2:end);
     
     % Green channel
     outputImage(1:2:end, 2:2:end, 2) = inputImage(1:2:end, 2:2:end);
     outputImage(2:2:end, 1:2:end, 2) = inputImage(2:2:end, 1:2:end);
     
-    % Red channel
-    outputImage(2:2:end, 2:2:end, 1) = inputImage(2:2:end, 2:2:end);
+    % Blue channel
+    outputImage(2:2:end, 2:2:end, 3) = inputImage(2:2:end, 2:2:end);
     
     % Bilinear interpolation
 
-    % Blue channel
-    outputImage(2:2:end-1, 2:2:end-1,3) = (outputImage(1:2:end-2,1:2:end-2,3) + outputImage(1:2:end-2,3:2:end,3) + outputImage(3:2:end,1:2:end-2,3) + outputImage(3:2:end, 3:2:end,3))/4;
-    outputImage(1:2:end, 2:2:end-1,3) = (outputImage(1:2:end,1:2:end-2,3) + outputImage(1:2:end,3:2:end,3))/2;
-    outputImage(2:2:end-1, 1:2:end,3) = (outputImage(1:2:end-2,1:2:end,3) + outputImage(3:2:end, 1:2:end,3))/2;
+    % Red channel
+    outputImage(2:2:end-1, 2:2:end-1,1) = (outputImage(1:2:end-2,1:2:end-2,1) + outputImage(1:2:end-2,3:2:end,1) + outputImage(3:2:end,1:2:end-2,1) + outputImage(3:2:end, 3:2:end,1))/4;
+    outputImage(1:2:end, 2:2:end-1,1) = (outputImage(1:2:end,1:2:end-2,1) + outputImage(1:2:end,3:2:end,1))/2;
+    outputImage(2:2:end-1, 1:2:end,1) = (outputImage(1:2:end-2,1:2:end,1) + outputImage(3:2:end, 1:2:end,1))/2;
     if mod(height,2) == 0
-        outputImage(end,1:2:end,3) = outputImage(end-1,1:2:end,3);
-        outputImage(end,2:2:end-1,3) = (outputImage(end-1,1:2:end-2,3) + outputImage(end-1,3:2:end,3))/2;
+        outputImage(end,1:2:end,1) = outputImage(end-1,1:2:end,1);
+        outputImage(end,2:2:end-1,1) = (outputImage(end-1,1:2:end-2,1) + outputImage(end-1,3:2:end,1))/2;
     end
     if mod(width,2) == 0
-        outputImage(1:2:end,end,3) = outputImage(1:2:end,end-1,3);
-        outputImage(2:2:end-1, end,3) = (outputImage(1:2:end-2,end-1,3) + outputImage(3:2:end,end-1,3))/2;
+        outputImage(1:2:end,end,1) = outputImage(1:2:end,end-1,1);
+        outputImage(2:2:end-1, end,1) = (outputImage(1:2:end-2,end-1,1) + outputImage(3:2:end,end-1,1))/2;
     end
     if mod(height,2) == 0 && mod(width,2) == 0
-        outputImage(end,end,3) = outputImage(end-1,end-1,3);
+        outputImage(end,end,1) = outputImage(end-1,end-1,1);
     end
 
     % Green channel
@@ -131,24 +137,24 @@ function [outputImage] = demosaicingBilinearInterpolation(inputImage)
         outputImage(end, 2:2:end-1, 2) = (outputImage(end, 1:2:end-2, 2) + outputImage(end, 3:2:end, 2) + outputImage(end-1, 2:2:end-1, 2))/3;
     end
     
-    % Red channel
-    outputImage(3:2:end-1,3:2:end-1,1) = (outputImage(2:2:end-2,2:2:end-2,1) + outputImage(2:2:end-2,4:2:end,1) + outputImage(4:2:end, 2:2:end-2,1) + outputImage(4:2:end, 4:2:end,1))/4;
-    outputImage(3:2:end-1, 2:2:end,1) = (outputImage(2:2:end-1,2:2:end,1) + outputImage(4:2:end,2:2:end,1))/2;
-    outputImage(2:2:end, 3:2:end-1,1) = (outputImage(2:2:end,2:2:end-1,1) + outputImage(2:2:end,4:2:end,1))/2; 
-    outputImage(1,1,1) = outputImage(2,2,1);
-    outputImage(1, 2:2:end,1) = outputImage(2,2:2:end,1);
-    outputImage(2:2:end,1,1) = outputImage(2:2:end,2,1);
-    outputImage(3:2:end-1,1,1) = (outputImage(2:2:end-2,2,1) + outputImage(4:2:end,2,1))/2;
-    outputImage(1,3:2:end-1,1) = (outputImage(1,2:2:end-2,1) + outputImage(1,4:2:end,1))/2;
+    % Blue channel
+    outputImage(3:2:end-1,3:2:end-1,3) = (outputImage(2:2:end-2,2:2:end-2,3) + outputImage(2:2:end-2,4:2:end,3) + outputImage(4:2:end, 2:2:end-2,3) + outputImage(4:2:end, 4:2:end,3))/4;
+    outputImage(3:2:end-1, 2:2:end,3) = (outputImage(2:2:end-1,2:2:end,3) + outputImage(4:2:end,2:2:end,3))/2;
+    outputImage(2:2:end, 3:2:end-1,3) = (outputImage(2:2:end,2:2:end-1,3) + outputImage(2:2:end,4:2:end,3))/2; 
+    outputImage(1,1,3) = outputImage(2,2,3);
+    outputImage(1, 2:2:end,3) = outputImage(2,2:2:end,3);
+    outputImage(2:2:end,1,3) = outputImage(2:2:end,2,3);
+    outputImage(3:2:end-1,1,3) = (outputImage(2:2:end-2,2,3) + outputImage(4:2:end,2,3))/2;
+    outputImage(1,3:2:end-1,3) = (outputImage(1,2:2:end-2,3) + outputImage(1,4:2:end,3))/2;
 
     if mod(height,2) == 1
-        outputImage(end,1,1) = outputImage(end-1,2,1);
+        outputImage(end,1,3) = outputImage(end-1,2,3);
     end
     if mod(width,2) == 1
-        outputImage(1,end,1) = outputImage(2,end-1,1);
+        outputImage(1,end,3) = outputImage(2,end-1,3);
     end
     if mod(height,2) == 1 && mod(width,2) == 1
-        outputImage(end,end,1) = outputImage(end-1,end-1,1);
+        outputImage(end,end,3) = outputImage(end-1,end-1,3);
     end
 end
 
@@ -226,3 +232,50 @@ function [output] = whiteBalancedManualBalancing(inputImage)
 
 end
 
+function [output] = mean_filtering(input)
+    % Get the size of the input image
+    [height, width] = size(input);
+    
+    % Initialize the output image
+    output = input;
+    
+    % Apply the mean filter
+    for i = 1:height
+        for j = 1:width
+            % Index of the neighborhood of the pixel inside the image
+            i1 = max(i-1, 1);
+            i2 = min(i+1, height);
+            j1 = max(j-1, 1);
+            j2 = min(j+1, width);
+
+            % Compute the mean of the neighborhood
+            output(i, j) = mean(mean(input(i1:i2, j1:j2)));
+        end
+    end
+
+end
+
+function [output] = median_filtering(input)
+    % Get the size of the input image
+    [height, width] = size(input);
+    
+    % Initialize the output image
+    output = zeros(height, width);
+    
+    % Apply the median filter
+    for i = 2:height-1
+        for j = 2:width-1
+            output(i, j) = median(median(input(i-1:i+1, j-1:j+1)));
+        end
+    end
+end
+
+function [output] = gaussian_filtering(input)
+    % Get the size of the input image
+    [height, width] = size(input);
+    
+    % Initialize the output image
+    output = zeros(height, width);
+
+    
+end
