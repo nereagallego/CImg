@@ -202,9 +202,6 @@ end
 function [output] = whiteBalancedManualBalancing(inputImage)
     output = inputImage;
 
-    height = size(inputImage, 1);
-    width = size(inputImage, 2);
-
     imshow(inputImage);
     % Get a pixel coordinate by mouse click
     [x, y] = ginput(1);
