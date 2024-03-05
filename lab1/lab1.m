@@ -70,7 +70,7 @@ config_fig = config_fig + 1;
 figure(config_fig); imshow(filtered);
 
 % 6) Color balance
-colorBalanced = colorBalance(gaussianFiltered);
+colorBalanced = colorBalance(filtered);
 config_fig = config_fig + 1;
 figure(config_fig); imshow(colorBalanced);
 
@@ -81,6 +81,8 @@ scale = 1.3;
 colorBalanced = colorBalanced * scale;
 % Ensure that no value exceeds 1
 colorBalanced = min(colorBalanced, 1);
+config_fig = config_fig + 1;
+figure(config_fig); imshow(colorBalanced);
 
 % Adjust exposure
 alpha = 1.3;
