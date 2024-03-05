@@ -102,7 +102,10 @@ imwrite(gammaCorrected, 'imgs/finalImage.png');
 imwrite(gammaCorrected, 'imgs/finalImage.jpg', 'Quality', 95);
 
 % By changing the JPEG quality settings, determine the lowest setting for which the compressed image is indistinguishable from the original
-imwrite(gammaCorrected, 'imgs/finalImage_ratio.jpg', 'Quality', 90);
+for compress=100:-5:1
+    filename = ['imgs/finalImage_compressed', num2str(compress), '.jpg'];
+    imwrite(gammaCorrected, filename, 'Quality', compress);
+end
 
 function [outputImage] = demosaicNearestNeighbor(inputImage)
     % Get the size of the input image
