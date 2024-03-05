@@ -45,7 +45,7 @@ demosaicNN = demosaicNearestNeighbor(image);
 % 3.2) Demosaicing with bilinear interpolation
 demosaicBI = demosaicingBilinearInterpolation(image);
 config_fig = config_fig + 1;
-figure(config_fig); imshow(demosaicBI);
+figure(config_fig); imshow(demosaicNN);
 
 % 4) White balancing
 % 4.1) White balancing using the white world assumption
@@ -58,13 +58,13 @@ figure(config_fig); imshow(whiteBalanced);
 % 5) Denoising
 
 % 5.1) Mean filtering
-filtered = mean_filtering(whiteBalanced);
+% filtered = mean_filtering(whiteBalanced);
 
 % 5.2) Median filtering
 % filtered = median_filtering(whiteBalanced);
 
 % 5.3) Gaussian filtering
-% filtered = gaussian_filtering(whiteBalanced, 5, 1.0);
+filtered = gaussian_filtering(whiteBalanced, 5, 1.0);
 
 config_fig = config_fig + 1;
 figure(config_fig); imshow(filtered);
@@ -87,6 +87,8 @@ figure(config_fig); imshow(colorBalanced);
 % Adjust exposure
 alpha = 1.3;
 colorBalanced = colorBalanced * 2^alpha;
+config_fig = config_fig + 1;
+figure(config_fig); imshow(colorBalanced);
 
 % Gamma correction
 gammaCorrected = gammaCorrection(colorBalanced, 0.8);
