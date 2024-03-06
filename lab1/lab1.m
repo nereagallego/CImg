@@ -10,8 +10,8 @@ config_fig = 0;
 % 2.1) Reading the image into Matlab
 
 % Load the image in TIFF format into Matlab
-% filename = 'images_tiff/bottles.tiff';
-filename = 'images_raw/IMG_0596.tiff';
+filename = 'images_tiff/bottles.tiff';
+% filename = 'images_raw/IMG_0596.tiff';
 image = imread(filename);
 
 % Check and report how many bits per pixel the image has.
