@@ -10,8 +10,8 @@ config_fig = 0;
 % 2.1) Reading the image into Matlab
 
 % Load the image in TIFF format into Matlab
-% filename = 'images_tiff/bottles.tiff';
-filename = 'images_raw/IMG_0596.tiff';
+filename = 'images_tiff/bottles.tiff';
+% filename = 'images_raw/IMG_0596.tiff';
 image = imread(filename);
 
 % Check and report how many bits per pixel the image has.
@@ -60,9 +60,15 @@ figure(config_fig); imshow(whiteBalanced);
 
 % 5.1) Mean filtering
 % filtered = mean_filtering(whiteBalanced);
+% 
+% config_fig = config_fig + 1;
+% figure(config_fig); imshow(filtered);
 
 % 5.2) Median filtering
 % filtered = median_filtering(whiteBalanced);
+% 
+% config_fig = config_fig + 1;
+% figure(config_fig); imshow(filtered);
 
 % 5.3) Gaussian filtering
 filtered = gaussian_filtering(whiteBalanced, 5, 1.0);
@@ -71,9 +77,17 @@ config_fig = config_fig + 1;
 figure(config_fig); imshow(filtered);
 
 % 6) Color balance
-colorBalanced = colorBalance(filtered);
+colorBalanced = colorBalance(filtered, 1.2);
 config_fig = config_fig + 1;
 figure(config_fig); imshow(colorBalanced);
+
+% colorBalanced = colorBalance(filtered, 0.5);
+% config_fig = config_fig + 1;
+% figure(config_fig); imshow(colorBalanced);
+% 
+% colorBalanced = colorBalance(filtered, 1.9);
+% config_fig = config_fig + 1;
+% figure(config_fig); imshow(colorBalanced);
 
 % 7) Tone reproduction
 
@@ -92,9 +106,18 @@ config_fig = config_fig + 1;
 figure(config_fig); imshow(colorBalanced);
 
 % Gamma correction
+% gammaCorrected = gammaCorrection(colorBalanced, 0.2);
+% config_fig = config_fig + 1;
+% figure(config_fig); imshow(gammaCorrected);
+
 gammaCorrected = gammaCorrection(colorBalanced, 0.8);
 config_fig = config_fig + 1;
 figure(config_fig); imshow(gammaCorrected);
+
+
+% gammaCorrected = gammaCorrection(colorBalanced, 1.4);
+% config_fig = config_fig + 1;
+% figure(config_fig); imshow(gammaCorrected);
 
 % 8) Compression
 
@@ -351,12 +374,12 @@ function [output] = gaussian_filtering(input, kernel_size, sigma)
     % output = uint8(output);
 end
 
-function [output] = colorBalance(input)
+function [output] = colorBalance(input, scale)
     % Convert to HSV
     hsv = rgb2hsv(input);
 
     % Boost the saturation
-    hsv(:,:,2) = hsv(:,:,2) * 1.2;
+    hsv(:,:,2) = hsv(:,:,2) * scale;
 
     % Convert back to RGB
     output = hsv2rgb(hsv);
