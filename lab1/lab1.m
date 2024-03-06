@@ -46,7 +46,7 @@ demosaicNN = demosaicNearestNeighbor(image);
 % 3.2) Demosaicing with bilinear interpolation
 demosaicBI = demosaicingBilinearInterpolation(image);
 config_fig = config_fig + 1;
-figure(config_fig); imshow(demosaicNN);
+figure(config_fig); imshow(demosaicBI);
 
 % 4) White balancing
 % 4.1) White balancing using the white world assumption
