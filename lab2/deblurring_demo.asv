@@ -28,22 +28,6 @@ k1 = im2double(...
 
 k1 = k1 * (flow / max(k1(:)));
 
-for sigma = [0.5, 0.05, 0.005]
-    for it = [1, 10, 100]
-        filename = ['figures/blur/wiener/sigma_', num2str(sigma), '/recovered', '.png'];
-        % Apply blur
-        f1 = zDefocused(f0, k1, sigma, 0);
-     
-
-        % Recover
-        % f0_hat = zDeconvWNR(f1, k1, C);
-        % f0_hat = deconvlucy(f1,k1, it);
-        f0_hat = deconvwnr(f1,k1, C);
-        imwrite(f0_hat, filename);
-        
-    end
-end
-
 % Apply blur
 f1 = zDefocused(f0, k1, sigma, 0);
 
