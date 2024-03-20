@@ -1,10 +1,10 @@
 % Read data
-aperture = imread('apertures/circular.bmp');
+aperture = imread('apertures/zhou.bmp');
 image = imread('images/penguins.jpg');
 image = image(:, :, 1);
 
 % Noise level (Gaussian noise)
-sigma = 0.05;
+sigma = 0.005;
 
 % Blur size
 blurSize = 7; %7
@@ -36,9 +36,9 @@ for sigma = [0.5, 0.05, 0.005]
      
 
         % Recover
-        % f0_hat = zDeconvWNR(f1, k1, C);
+        f0_hat = zDeconvWNR(f1, k1, C);
         % f0_hat = deconvlucy(f1,k1, it);
-        f0_hat = deconvwnr(f1,k1, C);
+        % f0_hat = deconvwnr(f1,k1, C);
         imwrite(f0_hat, filename);
         
     end
@@ -48,8 +48,8 @@ end
 f1 = zDefocused(f0, k1, sigma, 0);
 
 % Recover
-% f0_hat = zDeconvWNR(f1, k1, C);
-f0_hat = deconvlucy(f1,k1);
+f0_hat = zDeconvWNR(f1, k1, C);
+% f0_hat = deconvlucy(f1,k1);
 
 % Display results
 figure;
