@@ -7,40 +7,43 @@ image = image(:, :, 1);
 sigma = 0.005;
 
 % Blur size
-blurSize = 7; %7
+% blurSize = 7; %7
 
+for blurSize = [2, 7, 12]
 
-f0 = im2double(image);
-[height, width, channel] = size(f0);
+    f0 = im2double(image);
+    [height, width, channel] = size(f0);
 
-% Prior matrix: 1/f law
-A_star = eMakePrior(height, width) + 0.00000001;
-C = sigma.^2 * height * width ./ A_star;
+    % Prior matrix: 1/f law
+    A_star = eMakePrior(height, width) + 0.00000001;
+    C = sigma.^2 * height * width ./ A_star;
 
-% Normalization
-temp = fspecial('disk', blurSize);
-flow = max(temp(:));
+    % Normalization
+    temp = fspecial('disk', blurSize);
+    flow = max(temp(:));
 
-% Calculate effective PSF
-k1 = im2double(...
-    imresize(aperture, [2*blurSize + 1, 2*blurSize + 1], 'nearest')...
-);
+    % Calculate effective PSF
+    k1 = im2double(...
+        imresize(aperture, [2*blurSize + 1, 2*blurSize + 1], 'nearest')...
+    );
 
-k1 = k1 * (flow / max(k1(:)));
+    k1 = k1 * (flow / max(k1(:)));
 
-for sigma = [0.5, 0.05, 0.005]
-    for it = [1, 10, 100]
-        filename = ['figures/blur/wiener/sigma_', num2str(sigma), '/recovered', '.png'];
-        % Apply blur
-        f1 = zDefocused(f0, k1, sigma, 0);
-     
-
-        % Recover
-        f0_hat = zDeconvWNR(f1, k1, C);
-        % f0_hat = deconvlucy(f1,k1, it);
-        % f0_hat = deconvwnr(f1,k1, C);
-        imwrite(f0_hat, filename);
+    for sigma = [0.5, 0.05, 0.005]
+        % for it = [1, 10, 100]
+            filename = ['figures/zhou/blur/wiener_pior/sigma_', num2str(sigma), '/recovered_', num2str(blurSize), '.png'];
+            % Apply blur
+            f1 = zDefocused(f0, k1, sigma, 0);
         
+
+            % Recover
+            f0_hat = zDeconvWNR(f1, k1, C);
+            % f0_hat = deconvlucy(f1,k1, it);
+            % f0_hat = deconvwnr(f1,k1, C);
+            imwrite(f0_hat, filename);
+            imwrite(f1, ['figures/zhou/blur/wiener_pior/sigma_', num2str(sigma), '/defocused_', num2str(blurSize), '.png']);
+            
+        % end
     end
 end
 
