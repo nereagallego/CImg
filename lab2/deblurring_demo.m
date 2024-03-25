@@ -1,5 +1,5 @@
 % Read data
-aperture = imread('apertures/zhou.bmp');
+aperture = imread('apertures/raskar.bmp');
 image = imread('images/penguins.jpg');
 image = image(:, :, 1);
 
@@ -30,8 +30,13 @@ for blurSize = [2, 7, 12]
     k1 = k1 * (flow / max(k1(:)));
 
     for sigma = [0.5, 0.05, 0.005]
-        % for it = [1, 10, 100]
-            filename = ['figures/zhou/blur/wiener_pior/sigma_', num2str(sigma), '/recovered_', num2str(blurSize), '.png'];
+        for it = [1, 10, 100]
+            dirName = ['figures/raskar/blur/wiener_pior/sigma_', num2str(sigma)];
+            if ~exist(dirName, 'dir')
+            mkdir(dirName);
+            end
+            filename_rec = [dirName, '/recovered_', num2str(blurSize), '.png'];
+            filename_def = [dirName, '/defocused_', num2str(blurSize), '.png'];
             % Apply blur
             f1 = zDefocused(f0, k1, sigma, 0);
         
@@ -40,10 +45,10 @@ for blurSize = [2, 7, 12]
             f0_hat = zDeconvWNR(f1, k1, C);
             % f0_hat = deconvlucy(f1,k1, it);
             % f0_hat = deconvwnr(f1,k1, C);
-            imwrite(f0_hat, filename);
-            imwrite(f1, ['figures/zhou/blur/wiener_pior/sigma_', num2str(sigma), '/defocused_', num2str(blurSize), '.png']);
+            imwrite(f0_hat, filename_rec);
+            imwrite(f1, filename_def);
             
-        % end
+        end
     end
 end
 
