@@ -1,5 +1,5 @@
 % Read stack of images with their exposure
-directory = ('../Data/'); % change dir to run a different stack
+directory = ('../Data/own_photos/'); % change dir to run a different stack
 
 [file_names, exposures] = parse_files(directory);
 
@@ -25,8 +25,8 @@ lambda = 50;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Solve for camera response function and plot
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%weights = tent_weights;
-weights = no_weights;
+weights = tent_weights;
+% weights = no_weights;
 
 % Solve for g in each color channel
 [g_red] = gsolve(Z(:, :, 1), B, lambda, weights);
@@ -38,7 +38,7 @@ weights = no_weights;
 % Compute the hdr radiance map (Section 2.2 in Debevec)
 
 % Plot recovered g
-plot_g(g_red, g_green, g_blue, "Results/g_no_smooth.png");
+plot_g(g_red, g_green, g_blue, "Results/own_photos/g.png");
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Compute and plot radiance map
@@ -50,8 +50,8 @@ figure(2)
 imagesc(radiance_map(:, :, 1))
 axis image;
 
-saveas(gcf, "Results/radiance_map.png")
+saveas(gcf, "Results/own_photos/radiance_map.png")
 
-hdrwrite(exp(radiance_map), 'Results/hdr_image.hdr')
+hdrwrite(exp(radiance_map), 'Results/own_photos/hdr_image.hdr')
 
 clear directory t i;
