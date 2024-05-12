@@ -1,4 +1,4 @@
-function G = backProjection_reconstruction(data)
+function G = backProjection_reconstruction(data, resolution)
     laser_origin = data.laserOrigin;
     spad_origin = data.spadOrigin;
 
@@ -7,8 +7,6 @@ function G = backProjection_reconstruction(data)
 
     v_c = data.volumePosition;
     v_s = data.volumeSize;
-
-    resolution = 16;
 
     G = zeros(resolution, resolution, resolution);
 
@@ -19,7 +17,9 @@ function G = backProjection_reconstruction(data)
                 for l_i = 1:size(x_l, 1)
                     for l_j = 1:size(x_l, 2)
                         for s_i = 1:size(x_s, 1)
+                        % for s_i = 1:1
                             for s_j = 1:size(x_s, 2)
+                            % for s_j = 1:1
                                 l = x_l(l_i, l_j, :);
                                 s = x_s(s_i, s_j, :);
                                 l = l(:);
