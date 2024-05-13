@@ -1,13 +1,28 @@
 % NLOS Imaging
 
 % Load the data
-% data = load_hdf5_dataset('Data\Z_d=0.5_l=[1x1]_s=[256x256].hdf5');
+data = load_hdf5_dataset('Data\bunnybox_d=0.5_l=[16x16]_s=[16x16].hdf5');
 
-G = backProjection_reconstruction(data, 16);
+% Start the timer
 
-f_lap = fspecial3('laplacian');
+tic;
+
+% Perform the back-projection reconstruction
+G = backProjection_reconstruction(data, 16, 1);
+
+% Stop the timer and display the elapsed time
+elapsed_time = toc;
+% fprintf('Resolution: %d, Capture: %d\n', v, c);
+fprintf('Elapsed time: %.6f seconds\n', elapsed_time);
+
+% Save the reconstructed volume
+filename = sprintf('bunnybox_d=0.5_l=[16x16]_s=[16x16]_v=%d_c=%d.mat', 16, 1);
+save(filename, 'G');
+
+f_lap = fspecial3('lap');
 G_lap = imfilter(G, -f_lap, "symmetric");
-volumeViewer(G_lap);
-G_squeeze = squeeze(max(G_lap, [], 2));
+% volumeViewer(G);
+volumeViewer(G_lap)
+G_squeeze = squeeze(max(G, [], 3));
 colormap(hot(256));
 imagesc(rot90(G_squeeze,2));
