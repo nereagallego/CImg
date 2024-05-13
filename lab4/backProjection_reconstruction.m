@@ -1,4 +1,4 @@
-function G = backProjection_reconstruction(data, resolution)
+function G = backProjection_reconstruction(data, resolution_voxel, resolution_capture)
     laser_origin = data.laserOrigin;
     spad_origin = data.spadOrigin;
 
@@ -8,35 +8,31 @@ function G = backProjection_reconstruction(data, resolution)
     v_c = data.volumePosition;
     v_s = data.volumeSize;
 
-    G = zeros(resolution, resolution, resolution);
+    % Create a 3D grid of voxel indices
+    [v_i, v_j, v_k] = ndgrid(1:resolution_voxel, 1:resolution_voxel, 1:resolution_voxel);
 
-    for v_i = 1:resolution
-        for v_j = 1:resolution
-            for v_k = 1:resolution
-                center = v_c - 0.5 * [v_s; v_s; v_s] + [v_i; v_j; v_k] * v_s / resolution;
-                for l_i = 1:size(x_l, 1)
-                    for l_j = 1:size(x_l, 2)
-                        for s_i = 1:size(x_s, 1)
-                        % for s_i = 1:1
-                            for s_j = 1:size(x_s, 2)
-                            % for s_j = 1:1
-                                l = x_l(l_i, l_j, :);
-                                s = x_s(s_i, s_j, :);
-                                l = l(:);
-                                s = s(:);
-                                d1 = norm(laser_origin(:) - l);
-                                d2 = norm(spad_origin(:) - s);
-                                d3 = norm(l - center(:));
-                                d4 = norm(s - center(:));
+    % Calculate the center for each voxel
+    center = v_c - 0.5 * [v_s; v_s; v_s] + [v_i(:)'; v_j(:)'; v_k(:)'] * v_s / resolution_voxel;
 
-                                t = (d1 + d2 + d3 + d4);
+    % Initialize G
+    G = zeros(resolution_voxel, resolution_voxel, resolution_voxel);
 
-                                index = round(t / data.deltaT) + data.t0;
-
-                                G(v_i, v_j, v_k) = G(v_i, v_j, v_k) + data.data(l_i, l_j, s_i, s_j, index);
-                            end
-                        end
-                    end
+    % Loop over l and s
+    for l_i = 1:size(x_l, 1)
+        for l_j = 1:size(x_l, 2)
+            l = x_l(l_i, l_j, :);
+            l = l(:);
+            d1 = norm(l - laser_origin(:));
+            for s_i = 1:resolution_capture:size(x_s, 1)
+                for s_j = 1:resolution_capture:size(x_s, 2)
+                    s = x_s(s_i, s_j, :);
+                    s = s(:);
+                    d2 = norm(spad_origin(:) - s);
+                    d3 = vecnorm(bsxfun(@minus, center, l), 2, 1);
+                    d4 = vecnorm(bsxfun(@minus, center, s), 2, 1);
+                    t = (d1 + d2 + d3 + d4);
+                    index = round(t / data.deltaT) + data.t0;
+                    G = G + reshape(data.data(l_i, l_j, s_i, s_j, index), size(G));
                 end
             end
         end
