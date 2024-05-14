@@ -38,16 +38,14 @@ function G = backProjection_reconstruction_attenuation(data, resolution_voxel, r
                     t = (d1 + d2 + d3 + d4);
 
                     % Calculate cosine attenuation factor
-                    cos_laser = dot(center - l, repmat(data.laserNormals(l_i, l_j, :), 1, size(center, 2)), 1) ./ (d2 .* norm(data.laserNormals(l_i, l_j, :)));
-                    cos_spad = dot(center - s, repmat(data.spadNormals(s_i, s_j, :), 1, size(center, 2)), 1) ./ (d3 .* norm(data.spadNormals(s_i, s_j, :)));
-                    % cos_laser = dot(repmat(laser_origin - l, 1, size(center,2)), (center - l), 1) ./ (d2 .* d1);
-                    % cos_spad = dot(repmat(spad_origin - s, 1, size(center, 2)), (center - s), 1) ./ (d3 .* d4);
+                    cos_laser = dot(repmat((l - laser_origin) ./ d1, 1, size(center, 2)), (center - l), 1) ./ d2;
+                    cos_spad = dot(repmat((s - spad_origin) ./ d4, 1, size(center, 2)), (center - s), 1) ./ d3;
 
                     % Calculate quadratic attenuation factor
-                    quadratic_attenuation = (d1 .* d2 .* d3 .* d4) .^ 2 ;
+                    quadratic_attenuation = (d1 .* d2 .* d3 .* d4) **;
 
                     % Combine attenuation factors
-                    attenuation = quadratic_attenuation ./ (cos_laser .* cos_spad);
+                    attenuation = quadratic_attenuation;
 
                     
 
