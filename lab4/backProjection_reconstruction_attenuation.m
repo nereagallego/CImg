@@ -49,8 +49,10 @@ function G = backProjection_reconstruction_attenuation(data, resolution_voxel, r
                     % Calculate quadratic attenuation factor
                     quadratic_attenuation = (d2 .* d3) ;
 
+                    cosine_term = (cos_laser .* cos_spad);
+
                     % Combine attenuation factors
-                    attenuation = quadratic_attenuation ;
+                    attenuation = quadratic_attenuation;
 
                     
 
