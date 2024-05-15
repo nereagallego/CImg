@@ -5,26 +5,21 @@ data = load_hdf5_dataset('data/concavities_l[0.00,-0.50,0.00]_r[1.57,0.00,3.14]_
 
 % Start the timer
 
-% tic;
-% 
-% % Perform the back-projection reconstruction
-G = backProjection_confocal_reconstruction(data, 16, 1);
-% 
-% % Stop the timer and display the elapsed time
-% elapsed_time = toc;
-% % fprintf('Resolution: %d, Capture: %d\n', v, c);
-% fprintf('Elapsed time: %.6f seconds\n', elapsed_time);
-% 
-% % Save the reconstructed volume
-% filename = sprintf('Z_d=0.5_l=[1x1]_s=[256x256]_v=%d_c=%d.mat', 16, 1);
-% save(filename, 'G');
+tic;
 
-%G = load("bunny_d=0.5_c=[256x256]_v=16_c=1.mat");
-%G = G.G;
+% Perform the back-projection reconstruction
+G = backProjection_confocal_reconstruction(data, 16, 1);
+
+% Stop the timer and display the elapsed time
+elapsed_time = toc;
+% fprintf('Resolution: %d, Capture: %d\n', v, c);
+fprintf('Elapsed time: %.6f seconds\n', elapsed_time);
+
+
 
 f_lap = fspecial3('lap');
 G_lap = imfilter(G, -f_lap, "symmetric");
-%volumeViewer(G);
+volumeViewer(G);
 volumeViewer(G_lap)
 G_squeeze = squeeze(max(G, [], 3));
 colormap(hot(256));
